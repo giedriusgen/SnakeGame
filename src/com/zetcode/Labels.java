@@ -10,49 +10,67 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class Labels extends JPanel {
+import com.sun.javafx.event.EventQueue;
+
+public class Labels extends JPanel  {
 
 	Board lenta;
+	Timer clockTimer;
+	Buttons buttons; 
+	
+	
+	
+	
 	private int count;
+	static public JLabel obuoliuSkaicius; // padaryti ne static
+	
+	public void stopClockTimer() {
+		clockTimer.stop();
+	}
 
-	Labels(Board lenta) {
+
+	Labels(Board lenta, Buttons buttons) {
+		
+		
 		this.lenta = lenta;
+		
+		
 
-		JLabel obuoliuSkaicius = new JLabel();// nepavyksta tasku padaryti
-		obuoliuSkaicius.setText("Parodyti obuoliu skaiciu: " + Integer.toString(lenta.taskai));
+		obuoliuSkaicius = new JLabel();// nepavyksta tasku padaryti
+		obuoliuSkaicius.setText("Score: " + Integer.toString(lenta.taskai));
 		obuoliuSkaicius.setForeground(Color.WHITE);
 
-		JLabel laikas = new JLabel("...");
-		laikas.setForeground(Color.WHITE);
+		JLabel time = new JLabel("...");
+		time.setForeground(Color.WHITE);
 
-		Timer timer;
-		timer = new Timer(1000, new ActionListener() {
+		
+		clockTimer = new Timer(1000, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				if (lenta.isInGame()) {
+				if (lenta.isInGame() && !(lenta.isCountTime() == true) ) {
 					count++;
 
-					// if (count < 100000) {
-					laikas.setText("Laikas: " + Integer.toString(count));
+					time.setText("Time: " + Integer.toString(count));
 				} else {
-					laikas.setText("Laikas: " + count);
+					time.setText("Time: " + count);
 					// ((Timer) (e.getSource())).stop();
 				}
 			}
 		});
-		timer.setInitialDelay(0);
-		timer.start();
+		clockTimer.setInitialDelay(0);
+		clockTimer.start();
 
 		JPanel informacija = new JPanel(new GridLayout(2, 2));
 
 		informacija.add(obuoliuSkaicius);
-		informacija.add(laikas);
+		informacija.add(time);
 		informacija.setBackground(Color.BLACK);
 
 		add(informacija);
 
 	}
+
 
 }

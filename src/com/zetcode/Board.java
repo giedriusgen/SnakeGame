@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -24,6 +25,8 @@ import javax.swing.JToolBar;
 import javax.swing.Timer;
 
 public class Board extends JPanel implements ActionListener {
+	
+	
 
 	private final int B_WIDTH = 300;
 	private final int B_HEIGHT = 300;
@@ -48,19 +51,26 @@ public class Board extends JPanel implements ActionListener {
 	private boolean downDirection = false;
 	private boolean inGame = true;
 
-	private boolean isAlive = false; //
-	public boolean isPaused = true; //
 
 	private Timer timer;
 	private Image ball;
 	private Image apple;
 	private Image head;
+	
+	Buttons buttons;
+	Labels labels;
+	
+	private boolean countTime = false; 
 
-	public Board() {
+	public Board(Buttons buttons, Labels labels) {
 		initBoard();
+	
 	}
 
 	private void initBoard() {
+		
+		
+		
 
 		addKeyListener(new TAdapter());
 		setBackground(Color.BLACK);
@@ -71,8 +81,11 @@ public class Board extends JPanel implements ActionListener {
 		setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLUE)); // pridejau rema
 		loadImages();
 		initGame();
-
+		
 	}
+	
+	
+	
 
 	private void loadImages() {
 
@@ -85,12 +98,23 @@ public class Board extends JPanel implements ActionListener {
 		ImageIcon iih = new ImageIcon("src/resources/head.png");
 		head = iih.getImage();
 	}
+	
+	public void startTimer () {
+		timer.start();
+		countTime = false;
+	}
+	
+	public void stopTimer() {
+		timer.stop();
+		countTime = true;
+		
+	}
 
 	private void initGame() {
 
 		
 		
-		taskai = 1;
+		taskai = 0;
 		dots = 3;
 
 		for (int z = 0; z < dots; z++) {
@@ -101,20 +125,15 @@ public class Board extends JPanel implements ActionListener {
 		locateApple();
 
 		timer = new Timer(DELAY, this);
-
-		
+			
 		timer.start();     
-		/* if (isPaused == false) {   //mano pridetas
-			timer.stop();
-		
-		 }*/
-		
 	}
-
+	
+	
+	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-
 		doDrawing(g);
 	}
 
@@ -123,6 +142,8 @@ public class Board extends JPanel implements ActionListener {
 		if (inGame) {
 
 			g.drawImage(apple, apple_x, apple_y, this);
+			
+			
 
 			for (int z = 0; z < dots; z++) {
 				if (z == 0) {
@@ -150,6 +171,11 @@ public class Board extends JPanel implements ActionListener {
 		g.setFont(small);
 		g.drawString(msg, (B_WIDTH - metr.stringWidth(msg)) / 2, B_HEIGHT / 2);
 	}
+	
+	public void updateScoreView() {
+				
+		Labels.obuoliuSkaicius.setText("Score: " + Integer.toString(taskai)); //
+	}
 
 	private void checkApple() {
 
@@ -160,6 +186,10 @@ public class Board extends JPanel implements ActionListener {
 			taskai++;
 
 			locateApple();
+			
+			updateScoreView();
+			
+			//	labels.obuoliuSkaicius.setText("Parodyti obuoliu skaiciu: " + Integer.toString(taskai)); // padaryti be static
 		}
 	}
 
@@ -280,6 +310,14 @@ public class Board extends JPanel implements ActionListener {
 
 	public void setInGame(boolean inGame) {
 		this.inGame = inGame;
+	}
+
+	public boolean isCountTime() {
+		return countTime;
+	}
+
+	public void setCountTime(boolean countTime) {
+		this.countTime = countTime;
 	}
 
 }
