@@ -29,80 +29,78 @@ import javax.swing.Timer;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 
-public class Snake extends JFrame  {
- 
-	Board lenta;
-	Labels labels;
+public class Snake extends JFrame {
+
+	Board board;
+	TimeLabel timeLabel;
 	Buttons buttons;
-	private JFrame ex;
-	
-	
-	
-	private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW; 
+	JPanel boardFunctionality;
+	Snake boardSnake;
+
+	static Snake newSnake;
+
+	JPanel labels;
+
+	ScoreLabel scoreLabel;
+
+	private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
 
 	public Snake() {
 		initUI();
 	}
 
-	public Snake(Board lenta) {
-		this.lenta = lenta;
+	public Snake(Board board) {
+		this.board = board;
 
 		initUI();
 	}
-	
-	
-	
-	
-
 
 	public void startSnakeGame() {
-		JFrame ex = new Snake(lenta);
-		lenta = new Board(buttons, labels);
 
-		JPanel gyvatele = new JPanel();
-		gyvatele.add(lenta);
-	 //	gyvatele.addKeyListener(listener); //
-	 //	gyvatele.setFocusable(true); // problema neaktyvi lenta tada buna  pasidometi keybindings. tada focuso gali nereiketi
-	
-	 	
+		boardSnake = new Snake();
 
-		buttons = new Buttons(lenta);
-		labels = new Labels(lenta, buttons);
+		scoreLabel = new ScoreLabel(board);
+
+		board = new Board(buttons, timeLabel, scoreLabel);
+		timeLabel = new TimeLabel(board);
+		buttons = new Buttons(board, timeLabel, boardSnake);
+
+		boardFunctionality = new JPanel();
+		boardFunctionality.add(board);
+
+		board.getInputMap(IFW).put(KeyStroke.getKeyStroke("ENTER"), "pressed");
 		
-		
-		
-		labels.getInputMap(IFW).put(KeyStroke.getKeyStroke("SPACE"), "showMenu");
-		labels.getActionMap().put("showMenu", new AbstractAction("menu") {
-			public void actionPerformed( ActionEvent evt) {
-				System.out.println("sfsaf" );
-			//	ex.add(BorderLayout.NORTH, buttons);
-				lenta.stopTimer();   //jeigu nuimu lenta.stopTImer, gaunu mygtukus, kitu atveju - ne
-				
-				
+
+		board.getActionMap().put("pressed", new AbstractAction("menu") {
+			public void actionPerformed(ActionEvent evt) {
+				board.stopTimer();
+				boardSnake.add(BorderLayout.NORTH, buttons);
+				buttons.mygtukai.setVisible(true);
+
 			}
+
 		});
-		
-		
-		
 
-		labels.setBackground(Color.BLACK);		
+		scoreLabel.setBackground(Color.BLACK);
+		timeLabel.setBackground(Color.BLACK);
 		buttons.setBackground(Color.BLACK);
-		
-		gyvatele.setBackground(Color.BLACK);
+		boardFunctionality.setBackground(Color.BLACK);
 
-		ex.setSize(400, 430);
+		labels = new JPanel(new GridLayout(2, 2));
+		labels.add(timeLabel);
+		labels.add(scoreLabel);
 
-		ex.add(BorderLayout.SOUTH, labels);
-		ex.add(BorderLayout.CENTER, gyvatele);
-		ex.add(BorderLayout.NORTH, buttons);
-		
-		ex.setVisible(true);
+		boardSnake.setSize(400, 430);
+		boardSnake.add(BorderLayout.CENTER, boardFunctionality);
+		boardSnake.add(BorderLayout.SOUTH, labels);
+
+		// ex.add(BorderLayout.NORTH, buttons);
+
+		boardSnake.setVisible(true);
 
 	}
 
 	private void initUI() {
-
-		// add(new Board()); //cia buvo pirminiame kode tas
 
 		setResizable(false);
 		pack();
@@ -112,45 +110,10 @@ public class Snake extends JFrame  {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	}
-	
-/*	KeyListener listener = new KeyListener() {
 
-		@Override
-
-		public void keyPressed(KeyEvent event) {
-
-			char ch = event.getKeyChar();
-
-			if (ch == 'a') {
-
-				System.out.println(" test" + event.getKeyChar());
-
-				
-				}
-			int keyCode = event.getKeyCode();
-			if (keyCode == 32) {
-				System.out.println("space " + event.getKeyCode());
-			}}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-			};
-			*/
-			
-
-	public static void main(String[] args) {
+	public void startGame() {
 
 		EventQueue.invokeLater(() -> {
-			
 
 			Snake pradziosLangas = new Snake();
 			pradziosLangas.setLayout(new BorderLayout());
@@ -165,20 +128,22 @@ public class Snake extends JFrame  {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					pradziosLangas.dispose(); // sunaikinu objekta
+					pradziosLangas.dispose();
 					Snake newSnake = new Snake();
 					newSnake.startSnakeGame();
+
 				}
-				
 
 			});
 
-			
-
 		});
-	}
-	
 
+	}
+
+	public static void main(String[] args) {
+		Snake snake = new Snake();
+		snake.startGame();
+
+	}
 
 }
-

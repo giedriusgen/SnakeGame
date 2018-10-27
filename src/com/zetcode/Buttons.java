@@ -1,35 +1,47 @@
 package com.zetcode;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.sun.prism.paint.Color;
 
 public class Buttons extends JPanel {
 
-	Board lenta;
-	Labels labels;
-
-	private boolean isPaused = false; 
+	Board board;
+	TimeLabel timeLabel;
+	JPanel mygtukai;
+	
+	Snake boardSnake;
+	
 	
 
+	public boolean isPaused = false;
 
-	Buttons(Board lenta) {
-		this.lenta = lenta;
+	Buttons(Board board, TimeLabel timeLabel, Snake boardSnake) {
+		this.board = board;
+		this.timeLabel = timeLabel;
+		this.boardSnake = boardSnake;
+		
+		
 
-		JButton b = new JButton("Pause");
+		JButton b = new JButton("Continue game");
 		b.setFocusable(false);
-		JButton b2 = new JButton("Þaisti");
+		JButton b2 = new JButton("Restart game");
 		b2.setFocusable(false);
 		JButton b3 = new JButton("Statistika");
 		b3.setFocusable(false);
 
-		JPanel mygtukai = new JPanel(new GridLayout(1, 3));
+		mygtukai = new JPanel(new GridLayout(1, 3));
 		mygtukai.add(b);
 		mygtukai.add(b2);
 		mygtukai.add(b3);
@@ -38,29 +50,26 @@ public class Buttons extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(lenta.taskai);
+				
+				boardSnake.dispose();
+				
+				Snake snake = new Snake();
+				snake.startGame();
 			
-
 			}
 
-		}); 
+		});
+		
+		
 
 		b.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// uzbluokuoti klaviatura taip pat 
-				if (isPaused == false) {
-					lenta.stopTimer();
-					b.setText("Continue");
-					isPaused = true;
-					
-					
-				} else if (isPaused == true) {
-					lenta.startTimer();
-					b.setText("Pause");
-					isPaused = false;
-				}
+				// uzbluokuoti klaviatura taip pat
+				board.startTimer();
+				timeLabel.clockTimer.start();
+				mygtukai.setVisible(false); 
 
 			}
 
