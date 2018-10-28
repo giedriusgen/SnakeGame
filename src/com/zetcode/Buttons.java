@@ -19,48 +19,40 @@ public class Buttons extends JPanel {
 
 	Board board;
 	TimeLabel timeLabel;
-	JPanel mygtukai;
-	
 	Snake boardSnake;
-	
-	
 
-	public boolean isPaused = false;
+	JPanel gameButtons;
 
 	Buttons(Board board, TimeLabel timeLabel, Snake boardSnake) {
 		this.board = board;
 		this.timeLabel = timeLabel;
 		this.boardSnake = boardSnake;
-		
-		
 
 		JButton b = new JButton("Continue game");
 		b.setFocusable(false);
 		JButton b2 = new JButton("Restart game");
 		b2.setFocusable(false);
-		JButton b3 = new JButton("Statistika");
+		JButton b3 = new JButton("View results");
 		b3.setFocusable(false);
 
-		mygtukai = new JPanel(new GridLayout(1, 3));
-		mygtukai.add(b);
-		mygtukai.add(b2);
-		mygtukai.add(b3);
+		gameButtons = new JPanel(new GridLayout(1, 3));
+		gameButtons.add(b);
+		gameButtons.add(b2);
+		gameButtons.add(b3);
 
 		b2.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				boardSnake.dispose();
-				
+
 				Snake snake = new Snake();
 				snake.startGame();
-			
+
 			}
 
 		});
-		
-		
 
 		b.addActionListener(new ActionListener() {
 
@@ -69,20 +61,12 @@ public class Buttons extends JPanel {
 				// uzbluokuoti klaviatura taip pat
 				board.startTimer();
 				timeLabel.clockTimer.start();
-				mygtukai.setVisible(false); 
-
+				gameButtons.setVisible(false);
 			}
 
 		});
 
-		add(mygtukai);
+		add(gameButtons);
 	}
 
-	public boolean isPaused() {
-		return isPaused;
-	}
-
-	public void setPaused(boolean isPaused) {
-		this.isPaused = isPaused;
-	}
 }

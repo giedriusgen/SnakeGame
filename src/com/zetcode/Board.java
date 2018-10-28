@@ -15,6 +15,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -38,10 +43,7 @@ public class Board extends JPanel implements ActionListener {
 	private final int y[] = new int[ALL_DOTS];
 
 	private int dots;
-
-	public int points;
-
-	private int count;
+	private int points;
 
 	private int apple_x;
 	private int apple_y;
@@ -51,7 +53,8 @@ public class Board extends JPanel implements ActionListener {
 	private boolean upDirection = false;
 	private boolean downDirection = false;
 	private boolean inGame = true;
-
+	private boolean countTime = false;
+	
 	private Timer timer;
 	private Image ball;
 	private Image apple;
@@ -59,24 +62,26 @@ public class Board extends JPanel implements ActionListener {
 
 	Buttons buttons;
 	TimeLabel timeLabel;
+	ScoreLabel scoreLabel;
+	Snake enterName;
+	
 	JLabel score;
 	JLabel time;
 	Timer clockTimer;
+	Snake boardSnake;
+	Board board;
 	
-	ScoreLabel scoreLabel;
 
-	private boolean countTime = false;
-
-	public Board(Buttons buttons, TimeLabel timeLabel, ScoreLabel scoreLabel) {
+	
+	public Board(Buttons buttons, TimeLabel timeLabel, ScoreLabel scoreLabel, Snake enterName) {
 		initBoard();
 		this.buttons = buttons;
 		this.timeLabel = timeLabel;
 		this.scoreLabel = scoreLabel;
-
+		this.enterName = enterName;
 	}
 
 	private void initBoard() {
-
 
 		addKeyListener(new TAdapter());
 		setBackground(Color.BLACK);
@@ -105,14 +110,50 @@ public class Board extends JPanel implements ActionListener {
 	public void startTimer() {
 		timer.start();
 		countTime = false;
-		
+
 	}
 
 	public void stopTimer() {
-		 
+
 		timer.stop();
 		countTime = true;
 
+	}
+
+	private void addDatabase() throws ClassNotFoundException {
+
+		Class.forName("org.sqlite.JDBC");
+
+		Connection connection = null;
+		try {
+
+			connection = DriverManager.getConnection("jdbc:sqlite:snakeGameResults.db");
+			Statement statement = connection.createStatement();
+			statement.setQueryTimeout(30);
+
+			statement.executeUpdate("drop table if exists results");
+			statement.executeUpdate("create table results (name string, score integer, time integer)");
+			statement.executeUpdate(
+					"insert into results values('" + enterName.name + "', " + points + " , " + scoreLabel.timeToDB + " )");
+
+			ResultSet rs = statement.executeQuery("select * from results");
+			while (rs.next()) {
+
+				System.out.println("name = " + rs.getString("name"));
+				System.out.println("score = " + rs.getInt("score"));
+				System.out.println("time = " + rs.getInt("time"));
+			}
+		} catch (SQLException e) {
+
+			System.err.println(e.getMessage());
+		} finally {
+			try {
+				if (connection != null)
+					connection.close();
+			} catch (SQLException e) {
+				System.err.println(e);
+			}
+		}
 	}
 
 	private void initGame() {
@@ -172,10 +213,8 @@ public class Board extends JPanel implements ActionListener {
 
 	public void updateScoreView() {
 
-//		score.setText("Score: " + Integer.toString(points));
 		scoreLabel.score.setText("Score: " + Integer.toString(points));
 
-		// Labels.obuoliuSkaicius.setText("Score: " + Integer.toString(taskai)); //
 	}
 
 	private void checkApple() {
@@ -190,8 +229,6 @@ public class Board extends JPanel implements ActionListener {
 
 			updateScoreView();
 
-			// labels.obuoliuSkaicius.setText("Parodyti obuoliu skaiciu: " +
-			// Integer.toString(taskai)); // padaryti be static
 		}
 	}
 
@@ -246,7 +283,16 @@ public class Board extends JPanel implements ActionListener {
 
 		if (!inGame) {
 			timer.stop();
+
+			try {
+				addDatabase();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
+
 	}
 
 	private void locateApple() {

@@ -15,13 +15,16 @@ import com.sun.javafx.event.EventQueue;
 public class TimeLabel extends JPanel {
 
 	Board board;
+	ScoreLabel scoreLabel;
+
 	JLabel time;
 	Timer clockTimer;
 
 	private int count;
 
-	TimeLabel(Board board) {
+	TimeLabel(Board board, ScoreLabel scoreLabel) {
 		this.board = board;
+		this.scoreLabel = scoreLabel;
 
 		time = new JLabel("...");
 		time.setForeground(Color.WHITE);
@@ -33,6 +36,9 @@ public class TimeLabel extends JPanel {
 				if (board.isInGame()) {
 					count++;
 					time.setText("Time: " + Integer.toString(count));
+
+					scoreLabel.timeToDB = getCount();
+
 				}
 				if (board.isCountTime() == true) {
 					clockTimer.stop();
@@ -45,6 +51,14 @@ public class TimeLabel extends JPanel {
 		clockTimer.start();
 		add(time);
 
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
 	}
 
 }
