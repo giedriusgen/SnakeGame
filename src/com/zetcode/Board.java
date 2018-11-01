@@ -18,17 +18,24 @@ import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.Timer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 public class Board extends JPanel implements ActionListener {
 
@@ -43,7 +50,7 @@ public class Board extends JPanel implements ActionListener {
 	private final int y[] = new int[ALL_DOTS];
 
 	private int dots;
-	private int points;
+	public int points; // buvo private
 
 	private int apple_x;
 	private int apple_y;
@@ -54,7 +61,11 @@ public class Board extends JPanel implements ActionListener {
 	private boolean downDirection = false;
 	private boolean inGame = true;
 	private boolean countTime = false;
-	
+
+	private static final ImageIcon IID = new ImageIcon("resources/dot.png");
+	private static final ImageIcon IIA = new ImageIcon("resources/apple.png");
+	private static final ImageIcon IIH = new ImageIcon("resources/head.png");
+
 	private Timer timer;
 	private Image ball;
 	private Image apple;
@@ -64,15 +75,15 @@ public class Board extends JPanel implements ActionListener {
 	TimeLabel timeLabel;
 	ScoreLabel scoreLabel;
 	Snake enterName;
-	
+
 	JLabel score;
 	JLabel time;
 	Timer clockTimer;
 	Snake boardSnake;
 	Board board;
-	
 
-	
+	ResultSet rs;
+
 	public Board(Buttons buttons, TimeLabel timeLabel, ScoreLabel scoreLabel, Snake enterName) {
 		initBoard();
 		this.buttons = buttons;
@@ -97,14 +108,14 @@ public class Board extends JPanel implements ActionListener {
 
 	private void loadImages() {
 
-		ImageIcon iid = new ImageIcon("src/resources/dot.png");
-		ball = iid.getImage();
+		// ImageIcon iid = new ImageIcon("resources/dot.png");
+		ball = IID.getImage();
 
-		ImageIcon iia = new ImageIcon("src/resources/apple.png");
-		apple = iia.getImage();
+//		ImageIcon iia = new ImageIcon("resources/apple.png");
+		apple = IIA.getImage();
 
-		ImageIcon iih = new ImageIcon("src/resources/head.png");
-		head = iih.getImage();
+		// ImageIcon iih = new ImageIcon("resources/head.png");
+		head = IIH.getImage();
 	}
 
 	public void startTimer() {
@@ -120,7 +131,7 @@ public class Board extends JPanel implements ActionListener {
 
 	}
 
-	private void addDatabase() throws ClassNotFoundException {
+/*	private void addDatabase() throws ClassNotFoundException {
 
 		Class.forName("org.sqlite.JDBC");
 
@@ -128,21 +139,29 @@ public class Board extends JPanel implements ActionListener {
 		try {
 
 			connection = DriverManager.getConnection("jdbc:sqlite:snakeGameResults.db");
-			Statement statement = connection.createStatement();
+			Statement statement = connection.createStatement(); // naudoti prepared statement, jeinori placeholderius
+																// naudoti
 			statement.setQueryTimeout(30);
 
-			statement.executeUpdate("drop table if exists results");
-			statement.executeUpdate("create table results (name string, score integer, time integer)");
-			statement.executeUpdate(
-					"insert into results values('" + enterName.name + "', " + points + " , " + scoreLabel.timeToDB + " )");
+			// statement.executeUpdate("drop table if exists results");
+			// statement.executeUpdate("create table results (name string, score integer,
+			// time integer)");
+			statement.executeUpdate("insert into results values('" + enterName.name + "', " + points + " , "
+					+ scoreLabel.timeToDB + " )");
 
 			ResultSet rs = statement.executeQuery("select * from results");
-			while (rs.next()) {
 
-				System.out.println("name = " + rs.getString("name"));
-				System.out.println("score = " + rs.getInt("score"));
-				System.out.println("time = " + rs.getInt("time"));
-			}
+			JTable table = new JTable(buildTableModel(rs));
+
+			JOptionPane.showMessageDialog(null, new JScrollPane(table));
+
+			
+			 * while (rs.next()) {
+			 * 
+			 * System.out.println("name = " + rs.getString("name"));
+			 * System.out.println("score = " + rs.getInt("score"));
+			 * System.out.println("time = " + rs.getInt("time")); }
+			 
 		} catch (SQLException e) {
 
 			System.err.println(e.getMessage());
@@ -156,6 +175,32 @@ public class Board extends JPanel implements ActionListener {
 		}
 	}
 
+	public static DefaultTableModel buildTableModel(ResultSet rs) // static yra, gal nereikia?
+			throws SQLException {
+
+		ResultSetMetaData metaData = rs.getMetaData();
+
+		// names of columns
+		Vector<String> columnNames = new Vector<String>();
+		int columnCount = metaData.getColumnCount();
+		for (int column = 1; column <= columnCount; column++) {
+			columnNames.add(metaData.getColumnName(column));
+		}
+
+		// data of the table
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) {
+			Vector<Object> vector = new Vector<Object>();
+			for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+				vector.add(rs.getObject(columnIndex));
+			}
+			data.add(vector);
+		}
+
+		return new DefaultTableModel(data, columnNames);
+
+	}
+*/
 	private void initGame() {
 
 		dots = 3;
@@ -265,7 +310,7 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 
-		if (y[0] >= B_HEIGHT) {
+	/*	if (y[0] >= B_HEIGHT) {
 			inGame = false;
 		}
 
@@ -279,18 +324,23 @@ public class Board extends JPanel implements ActionListener {
 
 		if (x[0] < 0) {
 			inGame = false;
-		}
+		}*/
 
 		if (!inGame) {
 			timer.stop();
 
+			Database d = new Database(this);
+
 			try {
-				addDatabase();
-			} catch (ClassNotFoundException e) {
+				d.insertValues();
+			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
+		//	 d.showResults();
+
+			
 		}
 
 	}

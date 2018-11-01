@@ -43,6 +43,8 @@ public class Snake extends JFrame {
 	Snake instructionsSnake;
 
 	String name;
+	
+	private static final ImageIcon SNAKE_BACKGROUND = new ImageIcon("resources/snakeCover.png");
 
 	private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
 
@@ -149,7 +151,7 @@ public class Snake extends JFrame {
 
 			Snake openingFrame = new Snake();
 			openingFrame.setLayout(new BorderLayout());
-			JLabel background = new JLabel(new ImageIcon("src/resources/snakeCover.png"));
+			JLabel background = new JLabel(SNAKE_BACKGROUND);
 			openingFrame.add(background);
 			background.setLayout(new FlowLayout());
 			JButton playButton = new JButton("Play");

@@ -1,17 +1,30 @@
 package com.zetcode;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.table.DefaultTableModel;
 
 import com.sun.prism.paint.Color;
 
@@ -63,6 +76,22 @@ public class Buttons extends JPanel {
 				timeLabel.clockTimer.start();
 				gameButtons.setVisible(false);
 			}
+
+		});
+		
+		b3.addActionListener(new ActionListener() {  
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				Database d = new Database(board);
+				d.showResults();
+			}
+
+		
+				
+	
+			
 
 		});
 
