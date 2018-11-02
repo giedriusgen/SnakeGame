@@ -25,7 +25,13 @@ public class ScoreLabel extends JPanel {
 		score.setForeground(Color.WHITE);
 
 		add(score);
+		
+		
 
 	}
-
+	
+	/*public void up () {
+		score.setText("Score: " + Integer.toString(board.points));
+	} // pabandyti atskira metoda sukurti sitoje klaseje
+*/
 }

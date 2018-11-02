@@ -33,13 +33,16 @@ public class Buttons extends JPanel {
 	Board board;
 	TimeLabel timeLabel;
 	Snake boardSnake;
+	
+	Snake openingFrame;
 
 	JPanel gameButtons;
 
-	Buttons(Board board, TimeLabel timeLabel, Snake boardSnake) {
+	Buttons(Board board, TimeLabel timeLabel, Snake boardSnake, Snake openingFrame) {
 		this.board = board;
 		this.timeLabel = timeLabel;
 		this.boardSnake = boardSnake;
+		this.openingFrame = openingFrame;
 
 		JButton b = new JButton("Continue game");
 		b.setFocusable(false);
@@ -84,7 +87,7 @@ public class Buttons extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				Database d = new Database(board);
+				Database d = new Database(board, boardSnake, openingFrame);
 				d.showResults();
 			}
 

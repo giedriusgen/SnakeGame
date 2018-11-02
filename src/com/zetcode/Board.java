@@ -74,6 +74,7 @@ public class Board extends JPanel implements ActionListener {
 	Buttons buttons;
 	TimeLabel timeLabel;
 	ScoreLabel scoreLabel;
+
 	Snake enterName;
 
 	JLabel score;
@@ -81,15 +82,19 @@ public class Board extends JPanel implements ActionListener {
 	Timer clockTimer;
 	Snake boardSnake;
 	Board board;
+	Snake openingFrame;
 
 	ResultSet rs;
 
-	public Board(Buttons buttons, TimeLabel timeLabel, ScoreLabel scoreLabel, Snake enterName) {
+	public Board(Buttons buttons, TimeLabel timeLabel, ScoreLabel scoreLabel, Snake enterName, Snake boardSnake,
+			Snake openingFrame) {
 		initBoard();
 		this.buttons = buttons;
 		this.timeLabel = timeLabel;
 		this.scoreLabel = scoreLabel;
 		this.enterName = enterName;
+		this.boardSnake = boardSnake;
+		this.openingFrame = openingFrame;
 	}
 
 	private void initBoard() {
@@ -131,76 +136,6 @@ public class Board extends JPanel implements ActionListener {
 
 	}
 
-/*	private void addDatabase() throws ClassNotFoundException {
-
-		Class.forName("org.sqlite.JDBC");
-
-		Connection connection = null;
-		try {
-
-			connection = DriverManager.getConnection("jdbc:sqlite:snakeGameResults.db");
-			Statement statement = connection.createStatement(); // naudoti prepared statement, jeinori placeholderius
-																// naudoti
-			statement.setQueryTimeout(30);
-
-			// statement.executeUpdate("drop table if exists results");
-			// statement.executeUpdate("create table results (name string, score integer,
-			// time integer)");
-			statement.executeUpdate("insert into results values('" + enterName.name + "', " + points + " , "
-					+ scoreLabel.timeToDB + " )");
-
-			ResultSet rs = statement.executeQuery("select * from results");
-
-			JTable table = new JTable(buildTableModel(rs));
-
-			JOptionPane.showMessageDialog(null, new JScrollPane(table));
-
-			
-			 * while (rs.next()) {
-			 * 
-			 * System.out.println("name = " + rs.getString("name"));
-			 * System.out.println("score = " + rs.getInt("score"));
-			 * System.out.println("time = " + rs.getInt("time")); }
-			 
-		} catch (SQLException e) {
-
-			System.err.println(e.getMessage());
-		} finally {
-			try {
-				if (connection != null)
-					connection.close();
-			} catch (SQLException e) {
-				System.err.println(e);
-			}
-		}
-	}
-
-	public static DefaultTableModel buildTableModel(ResultSet rs) // static yra, gal nereikia?
-			throws SQLException {
-
-		ResultSetMetaData metaData = rs.getMetaData();
-
-		// names of columns
-		Vector<String> columnNames = new Vector<String>();
-		int columnCount = metaData.getColumnCount();
-		for (int column = 1; column <= columnCount; column++) {
-			columnNames.add(metaData.getColumnName(column));
-		}
-
-		// data of the table
-		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-		while (rs.next()) {
-			Vector<Object> vector = new Vector<Object>();
-			for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-				vector.add(rs.getObject(columnIndex));
-			}
-			data.add(vector);
-		}
-
-		return new DefaultTableModel(data, columnNames);
-
-	}
-*/
 	private void initGame() {
 
 		dots = 3;
@@ -303,33 +238,57 @@ public class Board extends JPanel implements ActionListener {
 
 	private void checkCollision() {
 
-		for (int z = dots; z > 0; z--) {
+		for (int z = dots; z > 0; z--) {    //padaryti kad jeigu susiduria ne tik su galva
 
 			if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
 				inGame = false;
 			}
 		}
 
-	/*	if (y[0] >= B_HEIGHT) {
-			inGame = false;
+		if (y[0] >= B_HEIGHT) {
+
+			if (openingFrame.gameWithBorders == false) {
+				y[0] = 0;
+			} else if (openingFrame.gameWithBorders == true) {
+				inGame = false;
+			}
+
 		}
 
 		if (y[0] < 0) {
-			inGame = false;
+
+			if (openingFrame.gameWithBorders == false) {
+				y[0] = B_HEIGHT;
+			} else if (openingFrame.gameWithBorders == true) {
+				inGame = false;
+			}
+
 		}
 
 		if (x[0] >= B_WIDTH) {
-			inGame = false;
+
+			if (openingFrame.gameWithBorders == false) {
+				x[0] = 0;
+			} else if (openingFrame.gameWithBorders == true) {
+				inGame = false;
+			}
+
 		}
 
 		if (x[0] < 0) {
-			inGame = false;
-		}*/
+
+			if (openingFrame.gameWithBorders == false) {
+				x[0] = B_WIDTH;
+			} else if (openingFrame.gameWithBorders == true) {
+				inGame = false;
+			}
+
+		}
 
 		if (!inGame) {
 			timer.stop();
 
-			Database d = new Database(this);
+			Database d = new Database(this, boardSnake, openingFrame);
 
 			try {
 				d.insertValues();
@@ -338,9 +297,8 @@ public class Board extends JPanel implements ActionListener {
 				e.printStackTrace();
 			}
 
-		//	 d.showResults();
+			d.showFinalResults();
 
-			
 		}
 
 	}

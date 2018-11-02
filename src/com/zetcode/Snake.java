@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -43,7 +44,10 @@ public class Snake extends JFrame {
 	Snake instructionsSnake;
 
 	String name;
+	Snake openingFrame;
 	
+	boolean gameWithBorders;
+
 	private static final ImageIcon SNAKE_BACKGROUND = new ImageIcon("resources/snakeCover.png");
 
 	private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
@@ -59,6 +63,51 @@ public class Snake extends JFrame {
 	}
 
 	public void startSnakeGame() {
+
+		boardSnake = new Snake();
+
+		scoreLabel = new ScoreLabel(board);
+		board = new Board(buttons, timeLabel, scoreLabel, enterName, boardSnake, openingFrame);
+		timeLabel = new TimeLabel(board, scoreLabel);
+		buttons = new Buttons(board, timeLabel, boardSnake, openingFrame);
+
+		JPanel boardFunctionality = new JPanel();
+		boardFunctionality.add(board);
+
+		board.getInputMap(IFW).put(KeyStroke.getKeyStroke("SPACE"), "pressed");
+
+		board.getActionMap().put("pressed", new AbstractAction("menu") {
+			public void actionPerformed(ActionEvent evt) {
+				board.stopTimer();
+				if (board.isInGame()) {
+					boardSnake.add(buttons); // TODO padaryti kad per viduri mygtukai ir prigestu/uzjuoduotu
+					buttons.gameButtons.setVisible(true);
+				}
+
+			}
+
+		});
+
+		scoreLabel.setBackground(Color.BLACK);
+		timeLabel.setBackground(Color.BLACK);
+		buttons.setBackground(Color.BLACK);
+		boardFunctionality.setBackground(Color.BLACK);
+
+		JPanel labels = new JPanel(new GridLayout(2, 2));
+		labels.add(timeLabel);
+		labels.add(scoreLabel);
+
+		boardSnake.setSize(400, 430);
+		boardSnake.add(BorderLayout.CENTER, boardFunctionality);
+		boardSnake.add(BorderLayout.SOUTH, labels);
+
+		// ex.add(BorderLayout.NORTH, buttons);
+
+		boardSnake.setVisible(true);
+
+	}
+
+	public void showFirstFrames() {
 
 		enterName = new Snake();
 		JButton b = new JButton("Submit");
@@ -79,59 +128,69 @@ public class Snake extends JFrame {
 		enterName.setVisible(true);
 		enterName.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		b.addActionListener(new ActionListener() {
+		b.addActionListener(new ActionListener() { //prideti teksta: select game mode. gal viska nukelti i apacia
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				enterName.name = textfield.getText();
 				enterName.dispose();
+				
+				JLabel gameMode = new JLabel("SELECT GAME MODE"); 
+				gameMode.setFont(new Font("Dialog", Font.BOLD, 20));
+				gameMode.setForeground(Color.white);
 
-				boardSnake = new Snake();
+				openingFrame = new Snake();
+				openingFrame.setLayout(new BorderLayout());
+				JLabel background = new JLabel(SNAKE_BACKGROUND);
+				openingFrame.add(background);
+				background.setLayout(null);
+				JButton withBorders = new JButton("Game with borders");
+				JButton withoutBorders = new JButton("Game without borders");
+				
+				gameMode.setBounds(110, 240, 240, 40);
+				withBorders.setBounds(120, 290, 185, 40);
+				withoutBorders.setBounds(120, 340, 185, 40);
+				
+				
+				background.add(withBorders);
+				background.add(withoutBorders);
+				background.add(gameMode);
+				
+				openingFrame.setSize(400, 430);
+				openingFrame.setVisible(true);
 
-				scoreLabel = new ScoreLabel(board);
-				board = new Board(buttons, timeLabel, scoreLabel, enterName);
-				timeLabel = new TimeLabel(board, scoreLabel);
-				buttons = new Buttons(board, timeLabel, boardSnake);
+				withBorders.addActionListener(new ActionListener() {
 
-				JPanel boardFunctionality = new JPanel();
-				boardFunctionality.add(board);
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						openingFrame.gameWithBorders = true;		
 
-				board.getInputMap(IFW).put(KeyStroke.getKeyStroke("SPACE"), "pressed");
+						openingFrame.dispose();
 
-				board.getActionMap().put("pressed", new AbstractAction("menu") {
-					public void actionPerformed(ActionEvent evt) {
-						board.stopTimer();
-						if (board.isInGame()) {
-							boardSnake.add(buttons); // TODO padaryti kad per viduri mygtukai ir prigestu/uzjuoduotu
-							buttons.gameButtons.setVisible(true);
-						}
+						startSnakeGame();
+
+					}
+
+				});
+				
+				withoutBorders.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						gameWithBorders = false;
+
+						openingFrame.dispose();
+
+						startSnakeGame();
 
 					}
 
 				});
 
-				scoreLabel.setBackground(Color.BLACK);
-				timeLabel.setBackground(Color.BLACK);
-				buttons.setBackground(Color.BLACK);
-				boardFunctionality.setBackground(Color.BLACK);
-
-				JPanel labels = new JPanel(new GridLayout(2, 2));
-				labels.add(timeLabel);
-				labels.add(scoreLabel);
-
-				boardSnake.setSize(400, 430);
-				boardSnake.add(BorderLayout.CENTER, boardFunctionality);
-				boardSnake.add(BorderLayout.SOUTH, labels);
-
-				// ex.add(BorderLayout.NORTH, buttons);
-
-				boardSnake.setVisible(true);
-
 			}
 
 		});
-
 	}
 
 	private void initUI() {
@@ -166,7 +225,7 @@ public class Snake extends JFrame {
 				public void actionPerformed(ActionEvent arg0) {
 					openingFrame.dispose();
 					newSnake = new Snake();
-					newSnake.startSnakeGame();
+					newSnake.showFirstFrames();
 
 				}
 
@@ -176,7 +235,7 @@ public class Snake extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					openingFrame.dispose();
-					
+
 					instructionsSnake = new Snake();
 					JLabel label = new JLabel();
 					label.setText("<html>Don't run the snake into the wall, or his own tail: you die.\r\n<br/><br/>"
@@ -193,7 +252,7 @@ public class Snake extends JFrame {
 						public void actionPerformed(ActionEvent arg0) {
 							instructionsSnake.dispose();
 							newSnake = new Snake();
-							newSnake.startSnakeGame();
+							newSnake.showFirstFrames();
 
 						}
 
