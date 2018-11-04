@@ -1,8 +1,6 @@
 package com.zetcode;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -10,14 +8,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import com.sun.javafx.event.EventQueue;
-
 public class TimeLabel extends JPanel {
 
 	Board board;
 	ScoreLabel scoreLabel;
 
-	JLabel time;
 	Timer clockTimer;
 
 	private int count;
@@ -26,7 +21,7 @@ public class TimeLabel extends JPanel {
 		this.board = board;
 		this.scoreLabel = scoreLabel;
 
-		time = new JLabel("...");
+		JLabel time = new JLabel("...");
 		time.setForeground(Color.WHITE);
 		clockTimer = new Timer(1000, new ActionListener() {
 

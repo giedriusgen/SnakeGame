@@ -1,41 +1,29 @@
 package com.zetcode;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JToolBar;
 import javax.swing.Timer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 public class Board extends JPanel implements ActionListener {
 
@@ -50,7 +38,7 @@ public class Board extends JPanel implements ActionListener {
 	private final int y[] = new int[ALL_DOTS];
 
 	private int dots;
-	public int points; // buvo private
+	private int points;
 
 	private int apple_x;
 	private int apple_y;
@@ -65,6 +53,7 @@ public class Board extends JPanel implements ActionListener {
 	private static final ImageIcon IID = new ImageIcon("resources/dot.png");
 	private static final ImageIcon IIA = new ImageIcon("resources/apple.png");
 	private static final ImageIcon IIH = new ImageIcon("resources/head.png");
+	private static final String EATING_SOUND = "resources/eatingSound.wav";
 
 	private Timer timer;
 	private Image ball;
@@ -74,15 +63,10 @@ public class Board extends JPanel implements ActionListener {
 	Buttons buttons;
 	TimeLabel timeLabel;
 	ScoreLabel scoreLabel;
-
-	Snake enterName;
-
-	JLabel score;
-	JLabel time;
-	Timer clockTimer;
-	Snake boardSnake;
 	Board board;
+	Snake enterName;
 	Snake openingFrame;
+	Snake boardSnake;
 
 	ResultSet rs;
 
@@ -105,35 +89,40 @@ public class Board extends JPanel implements ActionListener {
 		setDoubleBuffered(true);
 
 		setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
-		setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLUE)); // pridejau rema
+		setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLUE));
 		loadImages();
 		initGame();
 
 	}
 
+	private void playEatingSound() throws IOException {
+
+		InputStream inputStream = new FileInputStream(EATING_SOUND);
+
+		AudioStream audioStream = new AudioStream(inputStream);
+
+		AudioPlayer.player.start(audioStream);
+	}
+
 	private void loadImages() {
 
-		// ImageIcon iid = new ImageIcon("resources/dot.png");
 		ball = IID.getImage();
 
-//		ImageIcon iia = new ImageIcon("resources/apple.png");
 		apple = IIA.getImage();
 
-		// ImageIcon iih = new ImageIcon("resources/head.png");
 		head = IIH.getImage();
 	}
 
 	public void startTimer() {
+
 		timer.start();
 		countTime = false;
-
 	}
 
 	public void stopTimer() {
 
 		timer.stop();
 		countTime = true;
-
 	}
 
 	private void initGame() {
@@ -191,12 +180,6 @@ public class Board extends JPanel implements ActionListener {
 		g.drawString(msg, (B_WIDTH - metr.stringWidth(msg)) / 2, B_HEIGHT / 2);
 	}
 
-	public void updateScoreView() {
-
-		scoreLabel.score.setText("Score: " + Integer.toString(points));
-
-	}
-
 	private void checkApple() {
 
 		if ((x[0] == apple_x) && (y[0] == apple_y)) {
@@ -207,7 +190,14 @@ public class Board extends JPanel implements ActionListener {
 
 			locateApple();
 
-			updateScoreView();
+			scoreLabel.updateScoreLabel(this);
+
+			try {
+				playEatingSound();
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
 
 		}
 	}
@@ -238,9 +228,9 @@ public class Board extends JPanel implements ActionListener {
 
 	private void checkCollision() {
 
-		for (int z = dots; z > 0; z--) {    //padaryti kad jeigu susiduria ne tik su galva
+		for (int z = dots; z > 0; z--) {
 
-			if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
+			if ((z > 3) && (x[0] == x[z]) && (y[0] == y[z])) {
 				inGame = false;
 			}
 		}
@@ -293,7 +283,7 @@ public class Board extends JPanel implements ActionListener {
 			try {
 				d.insertValues();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			}
 
@@ -324,7 +314,6 @@ public class Board extends JPanel implements ActionListener {
 		}
 
 		repaint();
-
 	}
 
 	private class TAdapter extends KeyAdapter {
@@ -374,6 +363,14 @@ public class Board extends JPanel implements ActionListener {
 
 	public void setCountTime(boolean countTime) {
 		this.countTime = countTime;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
 	}
 
 }
